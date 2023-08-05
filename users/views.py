@@ -35,21 +35,18 @@ def user_login(request):
             email = form.cleaned_data['email']
             password = form.cleaned_data['password']
 
-            auth_user = get_object_or_None(AuthUser, email=email)
-            if auth_user:
+            if auth_user := get_object_or_None(AuthUser, email=email):
                 if auth_user.has_usable_password():
-                    user = authenticate(email=email, password=password)
-                    if user:
+                    if user := authenticate(email=email, password=password):
                         login(request, user)
                         LoggedLogin.record_login(request)
                         if user.is_staff:
                             return HttpResponseRedirect('/admin/')
-                        else:
-                            post_login_url = reverse_lazy('dashboard')
-                            return HttpResponseRedirect(post_login_url)
+                        post_login_url = reverse_lazy('dashboard')
+                        return HttpResponseRedirect(post_login_url)
                     else:
                         pw_reset_uri = reverse_lazy('forgot_password')
-                        pw_reset_uri = '%s?e=%s' % (pw_reset_uri, escape(email))
+                        pw_reset_uri = f'{pw_reset_uri}?e={escape(email)}'
                         msg = _('Sorry, that password is incorrect. Would you like to <a href="%(pw_reset_uri)s">reset your password</a>?' % {
                             'pw_reset_uri': pw_reset_uri,
                             })
@@ -58,19 +55,18 @@ def user_login(request):
                     msg = _("Sorry, that account doesn't have a password set yet.")
                     messages.info(request, msg, extra_tags='safe')
                     redir_uri = reverse_lazy('forgot_password')
-                    redir_uri = '%s?e=%s' % (redir_uri, escape(email))
+                    redir_uri = f'{redir_uri}?e={escape(email)}'
                     return HttpResponseRedirect(redir_uri)
 
             else:
                 signup_base = reverse_lazy('signup')
-                signup_uri = '%s?e=%s' % (signup_base, escape(email))
+                signup_uri = f'{signup_base}?e={escape(email)}'
                 msg = _('Account not found. Did you mean to <a href="%(signup_uri)s">sign up</a>?' % {
                     'signup_uri': signup_uri,
                     })
                 messages.warning(request, msg, extra_tags='safe')
     elif request.method == 'GET':
-        email = request.GET.get('e')
-        if email:
+        if email := request.GET.get('e'):
             form = LoginForm(initial={'email': email})
 
     return {
@@ -90,9 +86,7 @@ def signup(request):
         if form.is_valid():
             email = form.cleaned_data['email']
             password = form.cleaned_data['password']
-            existing_user = get_object_or_None(AuthUser, email=email)
-
-            if existing_user:
+            if existing_user := get_object_or_None(AuthUser, email=email):
                 msg = _('That email already belongs to someone, please login:')
                 messages.warning(request, msg)
                 return HttpResponseRedirect(existing_user.get_login_uri())
@@ -254,22 +248,20 @@ def forgot_password(request):
         form = PWResetForm(data=request.POST)
         if form.is_valid():
             email = form.cleaned_data['email']
-            auth_user = get_object_or_None(AuthUser, email=email)
-            if auth_user:
+            if auth_user := get_object_or_None(AuthUser, email=email):
                 auth_user.send_pwreset_email()
                 kwargs = {'email_address': email}
                 redir_url = reverse_lazy('confirm_pw_reset', kwargs=kwargs)
                 return HttpResponseRedirect(redir_url)
             else:
                 signup_url = reverse_lazy('signup')
-                signup_url = '%s?e=%s' % (signup_url, escape(email))
+                signup_url = f'{signup_url}?e={escape(email)}'
                 msg = _('Sorry, no user found with that email. Would you like to <a href="%(signup_url)s">create an account</a>?' % {
                     'signup_url': signup_url})
                 messages.warning(request, msg, extra_tags='safe')
 
     elif request.method == 'GET':
-        email = request.GET.get('e')
-        if email:
+        if email := request.GET.get('e'):
             form = PWResetForm(initial={'email': email})
 
     return {

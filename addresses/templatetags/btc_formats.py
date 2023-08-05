@@ -92,17 +92,10 @@ def build_url(base_url, **query_params):
     # print('url_parsed', url_parsed)
 
     qs_parsed = parse_qs(url_parsed.query)
-    # print('qs_parsed', qs_parsed)
-
-    new_qs = {}
-    for key in qs_parsed:
-        # parsing querystring returns a list entries (in case of dups)
-        # crude deduplication here:
-        new_qs[key] = qs_parsed[key][0]
-
+    new_qs = {key: qs_parsed[key][0] for key in qs_parsed}
     if query_params:
-        for key in query_params:
-            if query_params[key]:
+        for key, value in query_params.items():
+            if value:
                 # only work if there is a value for that key (defensive)
                 new_qs[key] = query_params[key]
 

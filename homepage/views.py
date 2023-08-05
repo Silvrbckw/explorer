@@ -143,8 +143,9 @@ def home(request):
                     redirect_url = reverse('address_overview', kwargs=kwargs)
 
             elif is_valid_wallet_name(search_string):
-                addr = lookup_wallet_name(search_string, kwargs['coin_symbol'])
-                if addr:
+                if addr := lookup_wallet_name(
+                    search_string, kwargs['coin_symbol']
+                ):
                     kwargs['address'] = addr
                     kwargs['wallet_name'] = search_string
                     redirect_url = reverse('address_overview', kwargs=kwargs)
@@ -204,17 +205,13 @@ def coin_overview(request, coin_symbol):
     for recent_tx in recent_txs:
         if recent_tx['hash'] in tx_hashes_seen:
             continue
-        else:
-            tx_hashes_seen.add(recent_tx['hash'])
-            recent_txs_filtered.append(recent_tx)
+        tx_hashes_seen.add(recent_tx['hash'])
+        recent_txs_filtered.append(recent_tx)
 
     # sort recent txs by order (they're not always returning in order)
     recent_txs_filtered = sorted(recent_txs_filtered, key=itemgetter('received'), reverse=True)
 
-    fee_api_url = 'https://api.blockcypher.com/v1/%s/%s' % (
-            COIN_SYMBOL_MAPPINGS[coin_symbol]['blockcypher_code'],
-            COIN_SYMBOL_MAPPINGS[coin_symbol]['blockcypher_network'],
-            )
+    fee_api_url = f"https://api.blockcypher.com/v1/{COIN_SYMBOL_MAPPINGS[coin_symbol]['blockcypher_code']}/{COIN_SYMBOL_MAPPINGS[coin_symbol]['blockcypher_network']}"
 
     return {
             'coin_symbol': coin_symbol,
