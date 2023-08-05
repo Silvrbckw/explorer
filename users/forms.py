@@ -76,11 +76,10 @@ class RegistrationForm(forms.Form):
     def clean(self):
         pw = self.cleaned_data.get('password')
         pwc = self.cleaned_data.get('password_confirm')
-        if pw != pwc:
-            err_msg = _('Those passwords did not match. Please try again.')
-            raise forms.ValidationError(err_msg)
-        else:
+        if pw == pwc:
             return self.cleaned_data
+        err_msg = _('Those passwords did not match. Please try again.')
+        raise forms.ValidationError(err_msg)
 
 
 class CoinSymbolForm(forms.Form):
@@ -115,11 +114,10 @@ class SetPWForm(forms.Form):
     def clean(self):
         pw = self.cleaned_data.get('password')
         pwc = self.cleaned_data.get('password_confirm')
-        if pw != pwc:
-            err_msg = _('Those passwords did not match. Please try again.')
-            raise forms.ValidationError(err_msg)
-        else:
+        if pw == pwc:
             return self.cleaned_data
+        err_msg = _('Those passwords did not match. Please try again.')
+        raise forms.ValidationError(err_msg)
 
 
 class ChangePWForm(forms.Form):

@@ -27,11 +27,7 @@ def wallet_overview(request, coin_symbol, pubkey):
 
     # 1 indexed page
     current_page = request.GET.get('page')
-    if current_page:
-        current_page = int(current_page)
-    else:
-        current_page = 1
-
+    current_page = int(current_page) if current_page else 1
     # transaction pagination: 0-indexed and inclusive
     tx_start_num = (current_page - 1) * TXNS_PER_PAGE
     tx_end_num = current_page * TXNS_PER_PAGE - 1

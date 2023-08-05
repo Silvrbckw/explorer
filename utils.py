@@ -17,12 +17,11 @@ def get_client_ip(request):
     """
     Get IP from a request
     """
-    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
-    if x_forwarded_for:
-        ip = x_forwarded_for.split(',')[0]
-    else:
-        ip = request.META.get('REMOTE_ADDR')
-    return ip
+    return (
+        x_forwarded_for.split(',')[0]
+        if (x_forwarded_for := request.META.get('HTTP_X_FORWARDED_FOR'))
+        else request.META.get('REMOTE_ADDR')
+    )
 
 
 def get_user_agent(request):
@@ -34,7 +33,7 @@ def is_good_status_code(status_code):
 
 
 def assert_good_status_code(status_code):
-    err_msg = 'Expected status code 2XX but got %s' % status_code
+    err_msg = f'Expected status code 2XX but got {status_code}'
     assert is_good_status_code(status_code), err_msg
 
 
@@ -48,7 +47,9 @@ def simple_csprng(num_chars=32, eligible_chars='abcdefghjkmnpqrstuvwxyzABCDEFGHJ
     Cryptographically secure but may not work on all OSs.
     Shouldn't cause blocking but it's possible.
     """
-    return ''.join(random.SystemRandom().choice(eligible_chars) for x in range(num_chars))
+    return ''.join(
+        random.SystemRandom().choice(eligible_chars) for _ in range(num_chars)
+    )
 
 
 def simple_pw_generator(num_chars=10, eligible_chars='abcdefghjkmnpqrstuvwxyz23456789'):
@@ -58,7 +59,7 @@ def simple_pw_generator(num_chars=10, eligible_chars='abcdefghjkmnpqrstuvwxyz234
 
     http://stackoverflow.com/a/2257449
     """
-    return ''.join(random.choice(eligible_chars) for x in range(num_chars))
+    return ''.join(random.choice(eligible_chars) for _ in range(num_chars))
 
 
 def uri_to_url(uri, base_url=BASE_URL):
@@ -68,16 +69,12 @@ def uri_to_url(uri, base_url=BASE_URL):
     """
     if not uri:
         return base_url
-    if uri.startswith('/'):
-        return '%s%s' % (base_url, uri)
-    return '%s/%s' % (base_url, uri)
+    return f'{base_url}{uri}' if uri.startswith('/') else f'{base_url}/{uri}'
 
 
 def cat_email_header(name, email):
     assert '@' in email
-    if name:
-        return '%s <%s>' % (name, email)
-    return email
+    return f'{name} <{email}>' if name else email
 
 
 def split_email_header(header):

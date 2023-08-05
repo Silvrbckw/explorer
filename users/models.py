@@ -73,11 +73,11 @@ class AuthUser(AbstractBaseUser):
     USERNAME_FIELD = 'email'
 
     def __str__(self):
-        return '%s: %s' % (self.id, self.email)
+        return f'{self.id}: {self.email}'
 
     def get_full_name(self):
         if self.first_name and self.last_name:
-            return '%s %s' % (self.first_name, self.last_name)
+            return f'{self.first_name} {self.last_name}'
         else:
             return ''
 
@@ -95,7 +95,7 @@ class AuthUser(AbstractBaseUser):
         return self.is_superuser
 
     def get_login_uri(self):
-        return '%s?e=%s' % (reverse_lazy('user_login'), self.email)
+        return f"{reverse_lazy('user_login')}?e={self.email}"
 
     def get_address_subscriptions(self):
         return self.addresssubscription_set.filter(
@@ -127,7 +127,7 @@ class LoggedLogin(models.Model):
     user_agent = models.CharField(max_length=1024, blank=True, db_index=True)
 
     def __str__(self):
-        return '%s: %s' % (self.id, self.ip_address)
+        return f'{self.id}: {self.ip_address}'
 
     @classmethod
     def record_login(cls, request):

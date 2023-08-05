@@ -19,7 +19,11 @@ def lookup_wallet_name(wallet_name, currency='btc', wns_base=WNS_URL_BASE):
 
     try:
         currency = 'dgc' if currency == 'doge' else currency
-        r = requests.get('%s/%s/%s' % (wns_base, wallet_name, currency), verify=True, timeout=TIMEOUT_IN_SECONDS)
+        r = requests.get(
+            f'{wns_base}/{wallet_name}/{currency}',
+            verify=True,
+            timeout=TIMEOUT_IN_SECONDS,
+        )
         rdict = json.loads(r.text)
         if rdict.get('success', False) and rdict.get('wallet_name','') == wallet_name and rdict.get('currency','') == currency:
             return rdict.get('wallet_address')

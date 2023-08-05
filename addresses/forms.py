@@ -25,9 +25,7 @@ class KnownUserAddressSubscriptionForm(forms.Form):
 
     def clean_coin_address(self):
         address = self.cleaned_data.get('coin_address')
-        if not address:
-            return None
-        return address.strip()
+        return None if not address else address.strip()
 
     def clean(self):
         address = self.cleaned_data.get('coin_address')

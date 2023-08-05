@@ -61,8 +61,7 @@ def transaction_overview(request, coin_symbol, tx_hash):
         messages.warning(request, msg)
         return HttpResponseRedirect(reverse('home'))
 
-    confidence = transaction_details.get('confidence')
-    if confidence:
+    if confidence := transaction_details.get('confidence'):
         confidence_pct = confidence * 100
         confidence_pct_scaled = scale_confidence(confidence)
     else:
@@ -81,10 +80,7 @@ def transaction_overview(request, coin_symbol, tx_hash):
         else:
             diff = confirmed_at - received_at
 
-        if diff.seconds < 60*20:
-            time_to_use = received_at
-        else:
-            time_to_use = confirmed_at
+        time_to_use = received_at if diff.seconds < 60*20 else confirmed_at
     else:
         time_to_use = received_at
 
@@ -97,12 +93,7 @@ def transaction_overview(request, coin_symbol, tx_hash):
         total_satoshis_coinbase, fee_in_satoshis_coinbase = 0, 0
         coinbase_msg = str(unhexlify(inputs[0]['script']))
 
-    api_url = 'https://api.blockcypher.com/v1/%s/%s/txs/%s?limit=%s&includeHex=true' % (
-            COIN_SYMBOL_MAPPINGS[coin_symbol]['blockcypher_code'],
-            COIN_SYMBOL_MAPPINGS[coin_symbol]['blockcypher_network'],
-            tx_hash,
-            TX_LIMIT,
-            )
+    api_url = f"https://api.blockcypher.com/v1/{COIN_SYMBOL_MAPPINGS[coin_symbol]['blockcypher_code']}/{COIN_SYMBOL_MAPPINGS[coin_symbol]['blockcypher_network']}/txs/{tx_hash}?limit={TX_LIMIT}&includeHex=true"
 
     return {
             'coin_symbol': coin_symbol,
@@ -137,11 +128,7 @@ def poll_confidence(request, coin_symbol, tx_hash):
             )
 
     confidence = transaction_details.get('confidence')
-    if confidence:
-        confidence_pct = min(round(confidence * 100, 2), 99.99)
-    else:
-        confidence_pct = None
-
+    confidence_pct = min(round(confidence * 100, 2), 99.99) if confidence else None
     json_dict = {
             'confidence': confidence,
             'confidence_pct': confidence_pct,
@@ -192,9 +179,7 @@ def push_tx(request, coin_symbol):
                     })
                 return HttpResponseRedirect(url)
     elif request.method == 'GET':
-        # Preseed tx hex if passed through GET string
-        tx_hex = request.GET.get('t')
-        if tx_hex:
+        if tx_hex := request.GET.get('t'):
             initial['tx_hex'] = tx_hex
             form = RawTXForm(initial=initial)
 

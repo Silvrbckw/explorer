@@ -30,15 +30,15 @@ def test_mail_merge(body_template, context_dict):
 
     Used in cases where we don't want a mail merge failing siltently.
     """
-    template_content = open('templates/emails/'+body_template, 'r').read()
+    template_content = open(f'templates/emails/{body_template}', 'r').read()
     variables = re.findall(r'{{(.*?)}}', template_content)
     # Trim whitespace and only take entries to the left of the first period (if applicable):
-    variables = set([x.strip().split('.')[0] for x in variables])
+    variables = {x.strip().split('.')[0] for x in variables}
     # Remove variable in all templates:
     variables.remove('BASE_URL')
     for variable in variables:
         if variable not in context_dict:
-            raise Exception('Missing variable `%s` in `%s`' % (variable, body_template))
+            raise Exception(f'Missing variable `{variable}` in `{body_template}`')
 
 
 # TODO: create non-blocking queue system and move email sending to queue
@@ -73,7 +73,7 @@ def send_and_log(subject, body_template, to_user=None, to_email=None,
     body_context_modified['verif_code'] = verif_code
 
     # Generate html body
-    html_body = render_to_string('emails/'+body_template, body_context_modified)
+    html_body = render_to_string(f'emails/{body_template}', body_context_modified)
 
     send_dict = {
             'html_body': html_body,
@@ -90,10 +90,6 @@ def send_and_log(subject, body_template, to_user=None, to_email=None,
 
     if EMAIL_DEV_PREFIX:
         send_dict['subject'] += ' [DEV]'
-    else:
-        # send_dict['bcc_info'] = ','.join([POSTMARK_SENDER, ])
-        pass
-
     # Log everything
     se = SentEmail.objects.create(
             from_email=from_email,
@@ -126,7 +122,9 @@ def send_admin_email(subject, body_template, body_context):
     body_context_modified['BASE_URL'] = BASE_URL
 
     # Generate html body
-    html_body = render_to_string('emails/admin/'+body_template, body_context_modified)
+    html_body = render_to_string(
+        f'emails/admin/{body_template}', body_context_modified
+    )
 
     if EMAIL_DEV_PREFIX:
         subject += ' [DEV]'

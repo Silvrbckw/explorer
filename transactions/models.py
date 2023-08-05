@@ -20,7 +20,7 @@ class OnChainTransaction(models.Model):
     is_withdrawal = models.BooleanField(db_index=True, default=False)
 
     def __str__(self):
-        return '%s to %s' % (self.id, self.tx_hash)
+        return f'{self.id} to {self.tx_hash}'
 
     def send_double_spend_tx_notification(self):
         # FIXME
@@ -64,12 +64,12 @@ class OnChainTransaction(models.Model):
                 'address_subscription': self.address_subscription,
                 }
         return send_and_log(
-                subject='Unconfirmed Transaction for %s' % b58_address,
-                body_template='new_tx.html',
-                to_user=self.address_subscription.auth_user,
-                body_context=context_dict,
-                fkey_objs=fkey_objs,
-                )
+            subject=f'Unconfirmed Transaction for {b58_address}',
+            body_template='new_tx.html',
+            to_user=self.address_subscription.auth_user,
+            body_context=context_dict,
+            fkey_objs=fkey_objs,
+        )
 
     def send_confirmed_tx_email(self):
         b58_address = self.address_subscription.b58_address
@@ -85,9 +85,9 @@ class OnChainTransaction(models.Model):
                 'address_subscription': self.address_subscription,
                 }
         return send_and_log(
-                subject='Transaction %s... Confirmed' % self.tx_hash[:10],
-                body_template='confirmed_tx.html',
-                to_user=self.address_subscription.auth_user,
-                body_context=context_dict,
-                fkey_objs=fkey_objs,
-                )
+            subject=f'Transaction {self.tx_hash[:10]}... Confirmed',
+            body_template='confirmed_tx.html',
+            to_user=self.address_subscription.auth_user,
+            body_context=context_dict,
+            fkey_objs=fkey_objs,
+        )

@@ -8,6 +8,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.7/ref/settings/
 """
 
+
 import re
 import dj_database_url
 
@@ -16,7 +17,7 @@ import os
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 PROJECT_PATH = os.path.dirname(os.path.dirname(__file__))
-LOCALE_PATHS = (PROJECT_PATH + "/locale/",)
+LOCALE_PATHS = (f"{PROJECT_PATH}/locale/", )
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.7/howto/deployment/checklist/
@@ -25,21 +26,10 @@ LOCALE_PATHS = (PROJECT_PATH + "/locale/",)
 SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-if os.getenv('DEBUG') == 'True':
-    DEBUG = True
-else:
-    DEBUG = False
-if os.getenv('TEMPLATE_DEBUG') == 'True':
-    TDEBUG = True
-else:
-    TDEBUG = False
-
+DEBUG = os.getenv('DEBUG') == 'True'
+TDEBUG = os.getenv('TEMPLATE_DEBUG') == 'True'
 # DDT can cause extreme slowness clocking template rendering CPU times
-if os.getenv('DISABLE_DEBUG_TOOLBAR') == 'False':
-    DISABLE_DEBUG_TOOLBAR = False
-else:
-    DISABLE_DEBUG_TOOLBAR = True
-
+DISABLE_DEBUG_TOOLBAR = os.getenv('DISABLE_DEBUG_TOOLBAR') != 'False'
 ALLOWED_HOSTS = [
         'live.blockcypher.com',
         'blockcypher.herokuapp.com',
@@ -170,14 +160,14 @@ SITE_DOMAIN = os.getenv('SITE_DOMAIN', PRODUCTION_DOMAIN)
 # SSL and BASE_URL settings for Production, Staging and Local:
 if SITE_DOMAIN in (PRODUCTION_DOMAIN, STAGING_DOMAIN):
     DEBUG_TOOLBAR_PATCH_SETTINGS = False
-    BASE_URL = 'https://%s' % SITE_DOMAIN
+    BASE_URL = f'https://{SITE_DOMAIN}'
     # FIXME:
     CSRF_COOKIE_SECURE = True
     MIDDLEWARE += ('django.middleware.security.SecurityMiddleware',)
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
     SECURE_SSL_REDIRECT = True
 else:
-    BASE_URL = 'http://%s' % SITE_DOMAIN
+    BASE_URL = f'http://{SITE_DOMAIN}'
     if not DISABLE_DEBUG_TOOLBAR:
         # FIXME: this should work on staging too, but I can't get it to work with gunicorn
         DEBUG_TOOLBAR_PATCH_SETTINGS = True
@@ -266,5 +256,5 @@ LOGGING = {
 
 if DEBUG:
     print('-'*75)
-    print('SITE_DOMAIN is set to %s' % SITE_DOMAIN)
+    print(f'SITE_DOMAIN is set to {SITE_DOMAIN}')
     print('-'*75)

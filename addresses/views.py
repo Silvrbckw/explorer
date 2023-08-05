@@ -54,12 +54,7 @@ def address_overview(request, coin_symbol, address, wallet_name=None):
     try:
         user_agent = request.META.get('HTTP_USER_AGENT')
 
-        if is_bot(user_agent):
-            # very crude hack!
-            confirmations = 1
-        else:
-            confirmations = 0
-
+        confirmations = 1 if is_bot(user_agent) else 0
         address_details = get_address_full(
                 address=address,
                 coin_symbol=coin_symbol,
@@ -85,10 +80,7 @@ def address_overview(request, coin_symbol, address, wallet_name=None):
     all_transactions = address_details.get('txs', [])
     # import pprint; pprint.pprint(all_transactions, width=1)
 
-    api_url = 'https://api.blockcypher.com/v1/%s/%s/addrs/%s/full?limit=50' % (
-            COIN_SYMBOL_MAPPINGS[coin_symbol]['blockcypher_code'],
-            COIN_SYMBOL_MAPPINGS[coin_symbol]['blockcypher_network'],
-            address)
+    api_url = f"https://api.blockcypher.com/v1/{COIN_SYMBOL_MAPPINGS[coin_symbol]['blockcypher_code']}/{COIN_SYMBOL_MAPPINGS[coin_symbol]['blockcypher_network']}/addrs/{address}/full?limit=50"
 
     return {
             'coin_symbol': coin_symbol,
@@ -148,8 +140,7 @@ def search_widgets(request, coin_symbol):
             redir_url = reverse('widgets_overview', kwargs=kwargs)
             return HttpResponseRedirect(redir_url)
     elif request.method == 'GET':
-        new_coin_symbol = request.GET.get('c')
-        if new_coin_symbol:
+        if new_coin_symbol := request.GET.get('c'):
             initial = {'coin_symbol': new_coin_symbol}
             form = AddressSearchForm(initial=initial)
 

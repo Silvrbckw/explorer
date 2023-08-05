@@ -35,7 +35,7 @@ class SentEmail(models.Model):
     address_forwarding = models.ForeignKey('addresses.AddressForwarding', null=True, blank=True, on_delete=models.CASCADE)
 
     def __str__(self):
-        return '%s to %s' % (self.id, self.to_email)
+        return f'{self.id} to {self.to_email}'
 
     def verify_user_email(self, request):
         self.verified_at = now()

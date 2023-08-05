@@ -33,9 +33,8 @@ class SearchForm(forms.Form):
         search_string = re.sub(r'[^a-zA-Z0-9]+', '', search_string)
         if is_valid_hash(search_string) or is_valid_address(search_string) or is_valid_eth_address(search_string) or is_valid_block_num(search_string):
             return search_string
-        else:
-            err_msg = _('Not a valid address, transaction hash, or block number')
-            raise forms.ValidationError(err_msg)
+        err_msg = _('Not a valid address, transaction hash, or block number')
+        raise forms.ValidationError(err_msg)
 
 
 class UnitChoiceForm(forms.Form):

@@ -25,5 +25,5 @@ class APICall(models.Model):
     api_results = models.CharField(max_length=100000, blank=True, null=True)
 
     def __str__(self):
-        return '%s from %s' % (self.id, self.api_name)
+        return f'{self.id} from {self.api_name}'
 

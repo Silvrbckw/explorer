@@ -22,7 +22,7 @@ class AddressSubscription(models.Model):
     address_forwarding_obj = models.ForeignKey('addresses.AddressForwarding', blank=True, null=True, on_delete=models.CASCADE)
 
     def __str__(self):
-        return '%s to %s' % (self.id, self.b58_address)
+        return f'{self.id} to {self.b58_address}'
 
     def get_currency_abbrev(self):
         return COIN_SYMBOL_MAPPINGS[self.coin_symbol]['currency_abbrev']
@@ -38,12 +38,12 @@ class AddressSubscription(models.Model):
                 'cs_display': COIN_SYMBOL_MAPPINGS[self.coin_symbol]['display_name']
                 }
         return send_and_log(
-                subject='Please Confirm Your Email Subscription to %s' % b58_address,
-                body_template='new_user_confirmation.html',
-                to_user=self.auth_user,
-                body_context=context_dict,
-                fkey_objs={'address_subscription': self},
-                )
+            subject=f'Please Confirm Your Email Subscription to {b58_address}',
+            body_template='new_user_confirmation.html',
+            to_user=self.auth_user,
+            body_context=context_dict,
+            fkey_objs={'address_subscription': self},
+        )
 
     def user_unsubscribe_subscription(self):
         self.unsubscribed_at = now()
@@ -66,7 +66,7 @@ class AddressForwarding(models.Model):
     blockcypher_id = models.CharField(max_length=64, null=False, blank=False, db_index=True)
 
     def __str__(self):
-        return '%s to %s' % (self.initial_address, self.destination_address)
+        return f'{self.initial_address} to {self.destination_address}'
 
     def get_currency_abbrev(self):
         return COIN_SYMBOL_MAPPINGS[self.coin_symbol]['currency_abbrev']
@@ -89,9 +89,9 @@ class AddressForwarding(models.Model):
                 'address_forwarding': self,
                 }
         return send_and_log(
-                subject='Please Confirm Your Email Subscription to %s' % self.initial_address,
-                body_template='new_user_forwarding.html',
-                to_user=self.auth_user,
-                body_context=context_dict,
-                fkey_objs=fkey_objs,
-                )
+            subject=f'Please Confirm Your Email Subscription to {self.initial_address}',
+            body_template='new_user_forwarding.html',
+            to_user=self.auth_user,
+            body_context=context_dict,
+            fkey_objs=fkey_objs,
+        )
